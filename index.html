@@ -1,31 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Chat n8n</title>
-</head>
-<body>
-
-<div>
-  <input id="msg" placeholder="Escribe tu mensaje..." />
-  <button onclick="send()">Enviar</button>
-  <div id="out"></div>
-</div>
-
 <script>
 async function send() {
   const msg = document.getElementById("msg").value;
+  const out = document.getElementById("out");
 
-  const res = await fetch("http://localhost:5678/webhook/0b92d21b-444b-442b-8ee4-0cb57b4260c1/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: msg })
-  });
+  out.innerText = "⏳ Esperando respuesta...";
 
-  const data = await res.json();
-  document.getElementById("out").innerText = data.reply;
+  try {
+    const res = await fetch("https://endamebic-renewably-emile.ngrok-free.dev/webhook/0b92d21b-444b-442b-8ee4-0cb57b4260c1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatInput: msg })
+    });
+
+    const data = await res.json();
+    console.log("Respuesta n8n:", data);
+
+    out.innerText = data.output || data.reply || JSON.stringify(data);
+
+  } catch (e) {
+    out.innerText = "❌ Error: " + e.message;
+  }
 }
 </script>
-
-</body>
-</html>
